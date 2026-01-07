@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Content Generator - AI-Powered</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .info-banner {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        
+        .info-banner h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .info-banner ul {
+            margin-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95em;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .loading.show { display: block; }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            margin-top: 40px;
+            display: none;
+        }
+        
+        .results.show { display: block; }
+        
+        .results-header {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+        
+        .results-body {
+            border: 2px solid #4caf50;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 30px;
+        }
+        
+        .topic-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .topic-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .topic-card p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .download-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .download-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .download-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .download-all-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .download-all-btn {
+            background: white;
+            color: #ff6b6b;
+            padding: 14px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-block;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        
+        .download-all-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .summary-section {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-section h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .topic-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .topic-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .topic-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .icon {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 AI Course Content Generator</h1>
+            <p>Transform Your Syllabus into Complete Teaching Materials</p>
+            <div class="badge">✨ Powered by Multi-Agent AI System</div>
+        </div>
+        
+        <div class="content">
+            <div class="info-banner">
+                <h3>🚀 What You'll Get</h3>
+                <ul>
+                    <li><strong>📊 PowerPoint Presentations</strong> - Professional slides ready for classroom</li>
+                    <li><strong>📄 PDF Notes</strong> - Comprehensive study materials with FAQs</li>
+                    <li><strong>🎙️ Audio Lectures</strong> - MP3 files with narrated content</li>
+                    <li><strong>📦 Download All</strong> - Get everything in one ZIP file</li>
+                </ul>
+            </div>
+            
+            <form id="generatorForm">
+                <div class="form-group">
+                    <label>📚 Syllabus Text *</label>
+                    <textarea name="syllabus_text" required placeholder="Paste your syllabus here...&#10;&#10;Example:&#10;Unit 1: Introduction to AI&#10;- Machine Learning Basics&#10;- Neural Networks&#10;- Deep Learning"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>📖 Course Outline *</label>
+                    <textarea name="course_outline_text" required placeholder="Brief description of the course..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>📅 Timetable *</label>
+                    <textarea name="timetable_text" required placeholder="Example: Monday 10:00 AM, Wednesday 2:00 PM, Friday 11:00 AM"></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="form-group">
+                        <label>🎯 Subject Name *</label>
+                        <input type="text" name="subject_name" required placeholder="e.g., Artificial Intelligence">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>⏱️ Course Duration *</label>
+                        <input type="text" name="course_duration" required placeholder="e.g., 14 weeks">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>⏰ Class Duration (minutes) *</label>
+                        <input type="number" name="class_duration" required value="60" min="30" max="180">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>🔄 Generation Mode *</label>
+                    <select name="mode" required>
+                        <option value="Lecture-wise">📝 Lecture-wise - One lecture session</option>
+                        <option value="Weekly">📆 Weekly - One week of classes</option>
+                        <option value="Monthly">📅 Monthly - One month of content</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn">🚀 Generate Content & Files</button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <h3>🤖 AI Agents Working...</h3>
+                <p>Analyzing syllabus, planning curriculum, and generating files...</p>
+                <p style="color: #999; margin-top: 10px;">This may take 30-60 seconds</p>
+            </div>
+            
+            <div class="results" id="results">
+                <div class="results-header">
+                    <h2>✅ Content Generated Successfully!</h2>
+                    <p id="resultSubject"></p>
+                </div>
+                
+                <div class="results-body">
+                    <div class="summary-section">
+                        <h4>📊 Generation Summary</h4>
+                        <p><strong>Mode:</strong> <span id="resultMode"></span></p>
+                        <p><strong>Time Scope:</strong> <span id="resultTimeScope"></span></p>
+                        <p><strong>Topics Covered:</strong> <span id="topicCount"></span></p>
+                    </div>
+                    
+                    <h3 style="margin-bottom: 20px;">📁 Generated Files by Topic</h3>
+                    <div id="filesList"></div>
+                    
+                    <div class="download-all-section">
+                        <h3>📦 Download Everything</h3>
+                        <p>Get all PPT, PDF, and Audio files in one ZIP archive</p>
+                        <a href="#" id="downloadAllBtn" class="download-all-btn">⬇️ Download All Files (ZIP)</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('generatorForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.class_duration = parseInt(data.class_duration);
+            
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('results').classList.remove('show');
+            
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayResults(result);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error generating content: ' + error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+            }
+        });
+        
+        function displayResults(result) {
+            document.getElementById('resultSubject').textContent = result.subject;
+            document.getElementById('resultMode').textContent = result.mode;
+            document.getElementById('resultTimeScope').textContent = result.time_scope;
+            document.getElementById('topicCount').textContent = result.covered_topics.length;
+            
+            const filesList = document.getElementById('filesList');
+            filesList.innerHTML = '';
+            
+            result.files.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'topic-card';
+                card.innerHTML = `
+                    <h4>${index + 1}. ${item.topic}</h4>
+                    <p><strong>Unit:</strong> ${item.unit}</p>
+                    <div class="download-buttons">
+                        <a href="${item.downloads.ppt}" class="download-btn">
+                            <span class="icon">📊</span> PowerPoint
+                        </a>
+                        <a href="${item.downloads.pdf}" class="download-btn">
+                            <span class="icon">📄</span> PDF Notes
+                        </a>
+                        <a href="${item.downloads.audio}" class="download-btn">
+                            <span class="icon">🎙️</span> Audio Lecture
+                        </a>
+                    </div>
+                `;
+                filesList.appendChild(card);
+            });
+            
+            document.getElementById('downloadAllBtn').href = result.download_all;
+            document.getElementById('results').classList.add('show');
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
